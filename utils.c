@@ -12,72 +12,62 @@
 
 #include "so_long.h"
 
-int	verificar_map(char **map)
+void	**images(t_window *j, int *wh)
 {
-	int	i;
-	int	j
-	
-	i = 0;
-	j = 0;
-	while(map[i])
-	{
-		j = 0;
-		while(map[i][j])
-		{
-			if(map[i][j] != '1' && map[i][j+1] == '\0')
-				return (-1);
-			j++;
-		}
-		i++;
-	}
-}
+	void	**img;
 
-int	verificar(t_window *j, char **map, int i, int k)
-{
-	while(map[i] != NULL)
-	{
-		k = 0;
-		while(map[i][k])
-		{
-			if(map[i][k]=='P')
-				j->player++;
-			else if(map[i][k]=='E')
-				j->saida++;
-			else if(map[i][k]=='C')
-				j->itens++;
-			k++;
-		}
-		i++;
-	}
-	if(j->player !=1 || j->saida != 1 || j->itens < 1)
-		return (-1);
-	return (0);
+	img = malloc(6 * sizeof(void *));
+	img[0] = mlx_xpm_file_to_image(j->conect,
+			"SRC/paredes/curva.xpm", &wh[0], &wh[1]);
+	img[1] = mlx_xpm_file_to_image(j->conect,
+			"SRC/paredes/terra.xpm", &wh[0], &wh[1]);
+	img[2] = mlx_xpm_file_to_image(j->conect,
+			"SRC/person/man.xpm", &wh[0], &wh[1]);
+	img[3] = mlx_xpm_file_to_image(j->conect,
+			"SRC/person/saida.xpm", &wh[0], &wh[1]);
+	img[4] = mlx_xpm_file_to_image(j->conect,
+			"SRC/item/bau.xpm", &wh[0], &wh[1]);
+	img[5] = NULL;
+	return (img);
 }
 
 void	imprimir(t_window *j, char i, int *xy, void **img)
 {
-	if(i == '1')
-		mlx_put_image_to_window(j->conect,j->window,img[0],xy[0], xy[1]);
-	else if (i == '0')
-		mlx_put_image_to_window(j->conect, j->window,img[1],xy[0], xy[1]);
+	if (i == '1')
+		mlx_put_image_to_window(j->conect, j->window, img[0], xy[0], xy[1]);
+	else if (i == '0' || i == 'F')
+		mlx_put_image_to_window(j->conect, j->window, img[1], xy[0], xy[1]);
 	else if (i == 'P')
-		mlx_put_image_to_window(j->conect, j->window,img[2],xy[0], xy[1]);
+		mlx_put_image_to_window(j->conect, j->window, img[2], xy[0], xy[1]);
 	else if (i == 'E')
-		mlx_put_image_to_window(j->conect, j->window,img[3],xy[0], xy[1]);
+		mlx_put_image_to_window(j->conect, j->window, img[3], xy[0], xy[1]);
 	else if (i == 'C')
-		mlx_put_image_to_window(j->conect, j->window,img[4],xy[0], xy[1]);
+		mlx_put_image_to_window(j->conect, j->window, img[4], xy[0], xy[1]);
 }
 
-void	liberar_imagem(void **img)
+void	liberar_imagem(t_window *j, void **img)
 {
 	int	i;
 
 	i = 0;
-	while(img[i] != NULL)
+	while (img[i] != NULL)
 	{
-		free(img[i]);
+		mlx_destroy_image(j->conect, img[i]);
 		i++;
 	}
 	free(img[i]);
+}
 
+void	free_map(t_window *j)
+{
+	int	i;
+
+	i = 0;
+	while(j->map[i]!= NULL)
+	{
+		free(j->map[i]);
+		i++;
+	}
+	free(j->map);
+	exit(0);
 }
