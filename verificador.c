@@ -6,7 +6,7 @@
 /*   By: eda-mata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 13:07:47 by eda-mata          #+#    #+#             */
-/*   Updated: 2024/08/02 13:07:53 by eda-mata         ###   ########.fr       */
+/*   Updated: 2024/08/05 13:44:19 by eda-mata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ void	caminho(char **map, int x, int y)
 		return ;
 	if (map[x][y] == '0')
 		map[x][y] = 'F';
+	else if (map[x][y] == 'C')
+		map[x][y] = 'c';
 	caminho(map, x + 1, y);
 	caminho(map, x - 1, y);
 	caminho(map, x, y + 1);
@@ -52,6 +54,8 @@ int	verificar_map(char **map)
 
 int	verificar(t_window *j, char **map, int i, int k)
 {
+	static int	zero;
+
 	while (map[i] != NULL)
 	{
 		k = 0;
@@ -63,14 +67,16 @@ int	verificar(t_window *j, char **map, int i, int k)
 				j->saida++;
 			else if (map[i][k] == 'C')
 				j->itens++;
-			else if (map[i][k] != '0' && map[i][k] != 'F'
-				&& map[i][k] != '1' && map[i][k] != '\n')
+			else if (map[i][k] == '0')
+				zero++;
+			else if (map[i][k] != '0' && map[i][k] != '1'
+				&& map[i][k] != '\n')
 				return (-1);
 			k++;
 		}
 		i++;
 	}
-	if (j->player != 1 || (j->saida != 1 || j->itens < 1))
+	if (j->player != 1 || (j->saida != 1 || j->itens < 1) || zero == 0)
 		return (-1);
 	return (0);
 }
@@ -86,10 +92,15 @@ int	verificar_bloqueio(char **map)
 		j = 0;
 		while (map[i][j] != '\n')
 		{
-			if (map[i][j] == 'P' || map[i][j] == 'C' || map[i][j] == 'E')
+			if (map[i][j] == 'P' || map[i][j] == 'C')
 			{
 				if ((map[i + 1][j] == '0' || map[i - 1][j] == '0')
 					|| map[i][j + 1] == '0' || map[i][j - 1] == '0')
+					return (-1);
+				else if (!((map[i + 1][j] == 'F' || (map[i + 1][j] == 'C'
+						|| map[i - 1][j] == 'F' || map[i - 1][j] == 'C')
+						|| map[i][j + 1] == 'F' || map[i][j + 1] == 'C'
+						|| map[i][j - 1] == 'F' || map[i][j - 1] == 'C')))
 					return (-1);
 			}
 			j++;
@@ -103,6 +114,7 @@ int	verificar_caminho(char **map)
 {
 	int	i;
 	int	j;
+	int	v;
 
 	i = 0;
 	while (map[i] != NULL)
@@ -116,5 +128,7 @@ int	verificar_caminho(char **map)
 		}
 		i++;
 	}
-	return (verificar_bloqueio(map));
+	restore(map);
+	v = verificar_bloqueio(map);
+	return (v);
 }
